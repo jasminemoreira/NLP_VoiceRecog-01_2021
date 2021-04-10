@@ -12,11 +12,14 @@ python -m spacy link en_core_web_sm en #rodar como admin
 import speech_recognition as sr
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
-import win32com.client as wincl
 
+#apenas para quem usa windows
+import win32com.client as wincl
 speak = wincl.Dispatch("SAPI.SpVoice")
 speak.Rate=3
 
+#para quem usa MacOS ou Linux
+#import os
 
 def recognize_speech_from_mic(recognizer, microphone):
     if not isinstance(recognizer, sr.Recognizer):
@@ -26,7 +29,7 @@ def recognize_speech_from_mic(recognizer, microphone):
         raise TypeError("`microphone` must be `Microphone` instance")
 
     with microphone as source:
-        #recognizer.adjust_for_ambient_noise(source)
+        recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
 
     response = {
@@ -45,16 +48,14 @@ def recognize_speech_from_mic(recognizer, microphone):
 
     return response
 
-
 recognizer = sr.Recognizer()
 microphone = sr.Microphone()
 with microphone as source:
     recognizer.adjust_for_ambient_noise(source)
         
-name = "Dhyennyffer"
+name = "Robozitcha"
 bot = ChatBot('{} Bot'.format(name), read_only=True)
-bot.storage.drop()
-
+#bot.storage.drop()
 
 trainer = ChatterBotCorpusTrainer(bot)
 trainer.train(
@@ -74,12 +75,16 @@ while True:
 
     print('Você: ', pergunta)
     resposta = bot.get_response(pergunta)
-
+    #Windows
+    speak.Speak(resposta)
+    print('{}: '.format(name), resposta)
+    
     #comando = re.search("&&(.+?)&&", resposta)
     #resposta = re.sub("&&(.+?)>&&","",resposta)
-
-    print('{}: '.format(name), resposta)
+    #MacOS
     #os.system("say '{}'".format(resposta))
-    speak.Speak(resposta)
+    #Linux
+    #os.system("spd-say '{}'".format(resposta))
+
     
 
