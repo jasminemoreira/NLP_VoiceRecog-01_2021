@@ -9,10 +9,15 @@ import csv
 import PyPDF2
 import string
 import pandas as pd
-from nltk import word_tokenize, BigramCollocationFinder
+import numpy as np
+import gensim
+from nltk import word_tokenize, BigramCollocationFinder 
+from nltk.tokenize import RegexpTokenizer
 from collections import Counter
 from plotnine import ggplot, geom_col, aes, coord_flip
 from gensim import corpora, models
+import matplotlib.pyplot as plt
+
 
 stop_words_path = "C:\\Users\\jasmi\\OneDrive\\Área de Trabalho\\PLN RV\\PLN R e Python\\stopwords.csv"
 document_path = "C:\\Users\\jasmi\\OneDrive\\Área de Trabalho\\PLN RV\\PLN R e Python\\senhor_aneis_1.1.pdf"
@@ -26,9 +31,11 @@ with open(stop_words_path, encoding="utf8") as file:
 
 table = str.maketrans('', '', string.punctuation)        
 pages = []
+pages_raw = []
 reader = PyPDF2.PdfFileReader(document_path)
 for page in range(0,reader.numPages-1):
     txt = reader.getPage(page).extractText()
+    pages_raw.append(txt)
     txt = txt.translate(table)
     pages.append(txt)
     
@@ -49,6 +56,7 @@ df = pd.DataFrame({
  + geom_col()
  + coord_flip()
 )
+
 
 finder = BigramCollocationFinder.from_words(tokens)
 bigram = []
@@ -74,11 +82,27 @@ for k,v in finder.ngram_fd.items():
     qfreq.append(v)
 
 
-dictionary = corpora.Dictionary(tokens)
 
+doc_set = []
+for page in pages_raw:
+    doc_set.append(page)
+
+tokenizer = RegexpTokenizer(r'\w+')
+texts = []
+for i in doc_set:
+    # clean and tokenize document string
+    raw = i.lower()
+    tokens = tokenizer.tokenize(raw)
+    # remove stop words from tokens
+    stopped_tokens = [i for i in tokens if not i in sw]  
+    texts.append(stopped_tokens)
+
+# turn our tokenized documents into a id <-> term dictionary
+dictionary = corpora.Dictionary(texts)
+    
 # convert tokenized documents into a document-term matrix
-corpus = dictionary.doc2bow(tokens)
-
+corpus = [dictionary.doc2bow(text) for text in texts]
+    
 def plot_bar_x(labels,values):
     # this is for plotting purpose
     index = np.arange(len(labels))
@@ -100,5 +124,4 @@ for n,t in topics:
     words = [i[0] for i in t]
     betas = [i[1] for i in t]
     plot_bar_x(words,betas)
-
 
