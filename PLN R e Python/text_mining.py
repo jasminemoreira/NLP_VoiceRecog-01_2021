@@ -103,25 +103,27 @@ dictionary = corpora.Dictionary(texts)
 # convert tokenized documents into a document-term matrix
 corpus = [dictionary.doc2bow(text) for text in texts]
     
-def plot_bar_x(labels,values):
+def plot_bar_x(labels,values,number):
     # this is for plotting purpose
     index = np.arange(len(labels))
     plt.bar(index, values)
     plt.xlabel('Word', fontsize=10)
     plt.ylabel('Beta', fontsize=10)
     plt.xticks(index, labels, fontsize=10, rotation=70)
-    plt.title('Topic Analysis')
+    plt.title('Topic Analysis '+str(number))
     plt.show()
 
 # generate LDA model
-ntopics = 2
+ntopics = 5
 ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=ntopics, id2word = dictionary, passes=20)
 
 print(ldamodel.print_topics(num_topics=ntopics, num_words=4))
-topics = ldamodel.show_topics( num_words=5,formatted=False)
+topics = ldamodel.show_topics( num_words=8,formatted=False)
 
+cnt = 0
 for n,t in topics:
+    cnt += 1
     words = [i[0] for i in t]
     betas = [i[1] for i in t]
-    plot_bar_x(words,betas)
+    plot_bar_x(words,betas,cnt)
 
