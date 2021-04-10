@@ -76,8 +76,13 @@ while True:
     print('Você: ', pergunta)
     resposta = bot.get_response(pergunta)
     #Windows
+    
+    #extrair tag
+    
     speak.Speak(resposta)
     print('{}: '.format(name), resposta)
+    #tomar ação relacioanda à tag
+    
     
     #comando = re.search("&&(.+?)&&", resposta)
     #resposta = re.sub("&&(.+?)>&&","",resposta)
