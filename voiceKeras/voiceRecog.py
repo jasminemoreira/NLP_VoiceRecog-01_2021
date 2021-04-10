@@ -1,5 +1,6 @@
 """
-pip install tensorflow-gpu
+#pip install tensorflow-gpu
+pip install tensorflow
 pip install keras
 pip install librosa
 pip install matplotlib
@@ -8,13 +9,13 @@ pip install matplotlib
 import os
 import keras
 import tensorflow as tf
+import matplotlib.pyplot as plt
+
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 with tf.device("gpu:0"):
    print("tf.keras code in this scope will run on GPU")
-
-
 
 os.chdir("C:\\Users\\jasmi\\OneDrive\\Área de Trabalho\\PLN RV\\voiceKeras")
 from preprocess import *
@@ -32,7 +33,6 @@ X_test = X_test.reshape(X_test.shape[0], 20, 11, 1)
 y_train_hot = to_categorical(y_train)
 y_test_hot = to_categorical(y_test)
 
-
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(2, 2), activation='relu', input_shape=(20, 11, 1)))
 model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -45,10 +45,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['accuracy'])
 
-
-history = model.fit(X_train, y_train_hot, batch_size=100, epochs=5000, verbose=1, validation_data=(X_test, y_test_hot))
-
-import matplotlib.pyplot as plt
+history = model.fit(X_train, y_train_hot, batch_size=100, epochs=100, verbose=1, validation_data=(X_test, y_test_hot))
 
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
@@ -70,9 +67,6 @@ plt.title('Training and validation loss')
 plt.legend()
 
 plt.show()
-
-
-
 
 sample = wav2mfcc('./data/happy/012c8314_nohash_0.wav')
 sample_reshaped = sample.reshape(1, 20, 11, 1)
