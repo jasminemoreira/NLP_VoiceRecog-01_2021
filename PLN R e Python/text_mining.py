@@ -11,14 +11,14 @@ import string
 import pandas as pd
 import numpy as np
 import gensim
+from gensim import corpora
 from nltk import word_tokenize, BigramCollocationFinder 
 from nltk.tokenize import RegexpTokenizer
 from collections import Counter
 from plotnine import ggplot, geom_col, aes, coord_flip
-from gensim import corpora, models
 import matplotlib.pyplot as plt
 
-
+# Carregar documento e stop words
 stop_words_path = "C:\\Users\\jasmi\\OneDrive\\Área de Trabalho\\PLN RV\\PLN R e Python\\stopwords.csv"
 document_path = "C:\\Users\\jasmi\\OneDrive\\Área de Trabalho\\PLN RV\\PLN R e Python\\senhor_aneis_1.1.pdf"
 
@@ -33,20 +33,25 @@ table = str.maketrans('', '', string.punctuation)
 pages = []
 pages_raw = []
 reader = PyPDF2.PdfFileReader(document_path)
+
+#Ler páginas do documento
 for page in range(0,reader.numPages-1):
     txt = reader.getPage(page).extractText()
     pages_raw.append(txt)
     txt = txt.translate(table)
     pages.append(txt)
-    
+  
+#Tokenizar
 tokens_raw = []
 for page in pages:
     tokens_raw.extend(word_tokenize(page))   
 
 tokens = [token.lower() for token in tokens_raw if token.lower() not in sw and token!=""]
 
+#Análise de frequência
 tokens_count = Counter(tokens).most_common(10)
 
+#Plotar frequências
 df = pd.DataFrame({
     'words': [token[0] for token in tokens_count ],
     'freq': [token[1] for token in tokens_count ]
@@ -57,7 +62,7 @@ df = pd.DataFrame({
  + coord_flip()
 )
 
-
+#Análise de Bigramas
 finder = BigramCollocationFinder.from_words(tokens)
 bigram = []
 bfreq = []
@@ -65,6 +70,7 @@ for k,v in finder.ngram_fd.items():
     bigram.append(k[0]+" "+k[1])
     bfreq.append(v)
 
+#Análise de Trigramas
 from nltk.collocations import TrigramCollocationFinder
 trigram = []
 tfreq = []  
@@ -73,6 +79,7 @@ for k,v in finder.ngram_fd.items():
     trigram.append(k[0]+" "+k[1]+" "+k[2])
     tfreq.append(v)
 
+#Análise de Quadrigramas
 from nltk.collocations import QuadgramCollocationFinder    
 finder = QuadgramCollocationFinder.from_words(tokens)
 quadgram = []
@@ -81,8 +88,7 @@ for k,v in finder.ngram_fd.items():
     quadgram.append(k[0]+" "+k[1]+" "+k[2]+" "+k[3])
     qfreq.append(v)
 
-
-
+#Análise de Tópicos
 doc_set = []
 for page in pages_raw:
     doc_set.append(page)
