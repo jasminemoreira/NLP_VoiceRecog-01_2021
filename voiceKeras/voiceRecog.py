@@ -45,7 +45,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['accuracy'])
 
-history = model.fit(X_train, y_train_hot, batch_size=100, epochs=100, verbose=1, validation_data=(X_test, y_test_hot))
+history = model.fit(X_train, y_train_hot, batch_size=100, epochs=1000, verbose=1, validation_data=(X_test, y_test_hot))
 
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
@@ -68,7 +68,7 @@ plt.legend()
 
 plt.show()
 
-sample = wav2mfcc('./data/happy/012c8314_nohash_0.wav')
+sample = wav2mfcc('./data/ola/001.wav')
 sample_reshaped = sample.reshape(1, 20, 11, 1)
 print(get_labels()[0][
     np.argmax(model.predict(sample_reshaped))
